@@ -1,4 +1,5 @@
-import Image from 'next/image';
+'use client';
+
 import {Inter, Ubuntu} from 'next/font/google';
 import {
   Card,
@@ -11,30 +12,38 @@ import {
 import {Button} from '@/components/ui/button';
 import {Label} from '@/components/ui/label';
 import {Input} from '@/components/ui/input';
+import {Step} from '@/components/ui/step';
+import {useState} from 'react';
 
 const ubuntu = Ubuntu({weight: ['400', '500', '700'], subsets: ['latin']});
 
 export default function Home() {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const handleNext = () => {
+    if (currentStep < 4) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
   return (
     <main className={`${ubuntu.className} relative min-h-screen bg-[#EFF5FF]`}>
       <div className="h-[172px] w-full bg-[url('/bg-sidebar-mobile.svg')]">
         <div className="flex items-center justify-center pb-[34px] pt-8">
           <div className="flex items-center gap-4">
-            <div className="flex h-[33px] w-[33px] items-center justify-center rounded-full bg-[#BEE2FD] py-[5px] text-center">
-              <span className="text-sm font-bold leading-[23px] text-[#022959]">1</span>
-            </div>
+            <Step active={currentStep === 1}>1</Step>
 
-            <div className="flex h-[33px] w-[33px] items-center justify-center rounded-full border border-white py-[5px]">
-              <span className="text-sm font-bold leading-[23px] text-white">2</span>
-            </div>
+            <Step active={currentStep === 2}>2</Step>
 
-            <div className="flex h-[33px] w-[33px] items-center justify-center rounded-full border border-white py-[5px]">
-              <span className="text-sm font-bold leading-[23px] text-white">3</span>
-            </div>
+            <Step active={currentStep === 3}>3</Step>
 
-            <div className="flex h-[33px] w-[33px] items-center justify-center rounded-full border border-white py-[5px]">
-              <span className="text-sm font-bold leading-[23px] text-white">4</span>
-            </div>
+            <Step active={currentStep === 4}>4</Step>
           </div>
         </div>
       </div>
@@ -68,19 +77,14 @@ export default function Home() {
       </div>
 
       <div className="absolute bottom-0 flex w-full flex-row-reverse items-center justify-between bg-white p-4">
-        <Button className="bg-[#022959] text-sm leading-4">Next Step</Button>
+        <Button className="bg-[#022959] text-sm leading-4" onClick={handleNext}>
+          Next Step
+        </Button>
+
+        <Button variant="secondary" size="none" onClick={handleBack}>
+          Go Back
+        </Button>
       </div>
     </main>
   );
-}
-
-{
-  /* <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            /> */
 }
