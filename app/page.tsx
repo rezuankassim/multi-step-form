@@ -77,13 +77,15 @@ export default function Home() {
       </div>
 
       <div className="absolute bottom-0 flex w-full flex-row-reverse items-center justify-between bg-white p-4">
-        <Button className="bg-[#022959] text-sm leading-4" onClick={handleNext}>
-          Next Step
+        <Button variant={currentStep !== 4 ? 'secondary' : 'default'} onClick={handleNext}>
+          {currentStep !== 4 ? 'Next Step' : 'Confirm'}
         </Button>
 
-        <Button variant="secondary" size="none" onClick={handleBack}>
-          Go Back
-        </Button>
+        {currentStep === 1 ? null : (
+          <Button variant="link" size="none" onClick={handleBack}>
+            Go Back
+          </Button>
+        )}
       </div>
     </main>
   );

@@ -8,8 +8,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-[#022959] text-white',
-        secondary: 'text-[#9699AA]',
+        default: 'bg-[#483EFF] text-white',
+        secondary: 'bg-[#022959] text-white',
+        link: 'text-[#9699AA]',
       },
       size: {
         default: 'h-10 py-3 px-4',
