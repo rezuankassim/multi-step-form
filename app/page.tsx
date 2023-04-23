@@ -1,55 +1,44 @@
 'use client';
 
-import {Inter, Ubuntu} from 'next/font/google';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {Button} from '@/components/ui/button';
+import {CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Label} from '@/components/ui/label';
 import {Input} from '@/components/ui/input';
-import {Step} from '@/components/ui/step';
-import {useState} from 'react';
+import {Field, FieldProps} from 'formik';
+import * as Yup from 'yup';
+import Wizard from '@/components/Wizard';
+import WizardStep from '@/components/WizardStep';
+import {Switch} from '@/components/ui/switch';
+import {cn} from '@/lib/utils';
 
-const ubuntu = Ubuntu({weight: ['400', '500', '700'], subsets: ['latin']});
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function Home() {
-  const [currentStep, setCurrentStep] = useState(1);
-
-  const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep(prev => prev + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
-
   return (
-    <main className={`${ubuntu.className} relative min-h-screen bg-[#EFF5FF]`}>
-      <div className="h-[172px] w-full bg-[url('/bg-sidebar-mobile.svg')]">
-        <div className="flex items-center justify-center pb-[34px] pt-8">
-          <div className="flex items-center gap-4">
-            <Step active={currentStep === 1}>1</Step>
-
-            <Step active={currentStep === 2}>2</Step>
-
-            <Step active={currentStep === 3}>3</Step>
-
-            <Step active={currentStep === 4}>4</Step>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-4">
-        <Card className="-mt-[73px] rounded-[10px] drop-shadow-[0px_25px_40px_-20px_rgba(0,0,0,0.0951141)]">
+    <main className="relative min-h-screen bg-[#EFF5FF]">
+      <Wizard
+        initialValues={{
+          name: 'Rezuan Kassim',
+          email: 'rezuankassim@hotmail.com',
+          phone: '0182664733',
+          planMethod: 'monthly',
+        }}
+        onSubmit={async (values: any) =>
+          sleep(300).then(() => console.log('Wizard submit', values))
+        }
+      >
+        <WizardStep
+          onSubmit={() => console.log('Step1 onSubmit')}
+          validationSchema={Yup.object({
+            name: Yup.string()
+              .min(3, 'This field needs 3 char. min.')
+              .max(255, 'This field must be within 255 char.')
+              .required('This field is required'),
+            email: Yup.string().email('This field is invalid').required('This field is required'),
+            phone: Yup.string()
+              .min(10, 'This field must be within 255 char.')
+              .required('This field is required'),
+          })}
+        >
           <CardHeader className="px-6 pb-[22px] pt-8">
             <CardTitle className="text-2xl leading-7 text-[#022959]">Personal Info</CardTitle>
             <CardDescription className="text-base text-[#9699AA]">
@@ -58,35 +47,100 @@ export default function Home() {
           </CardHeader>
 
           <CardContent className="grid gap-y-4">
-            <div className="flex flex-col gap-y-[3px]">
-              <Label htmlFor="name">Name</Label>
-              <Input placeholder="e.g. Stephen King" />
-            </div>
+            <Field name="name">
+              {({field, meta}: FieldProps) => (
+                <div className="flex flex-col gap-y-[3px]">
+                  <Label htmlFor="name" error={meta.error}>
+                    Name
+                  </Label>
+                  <Input
+                    placeholder="e.g. Stephen King"
+                    error={meta.touched && meta.error ? true : false}
+                    {...field}
+                  />
+                </div>
+              )}
+            </Field>
 
-            <div className="flex flex-col gap-y-[3px]">
-              <Label htmlFor="email">Email</Label>
-              <Input type="email" placeholder="e.g. stephenking@lorem.com" />
-            </div>
+            <Field name="email">
+              {({field, meta}: FieldProps) => (
+                <div className="flex flex-col gap-y-[3px]">
+                  <Label htmlFor="email" error={meta.error}>
+                    Email
+                  </Label>
+                  <Input
+                    type="email"
+                    placeholder="e.g. stephenking@lorem.com"
+                    error={meta.touched && meta.error ? true : false}
+                    {...field}
+                  />
+                </div>
+              )}
+            </Field>
 
-            <div className="flex flex-col gap-y-[3px]">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input placeholder="e.g. +1 234 567 890" />
-            </div>
+            <Field name="phone">
+              {({field, meta}: FieldProps) => (
+                <div className="flex flex-col gap-y-[3px]">
+                  <Label htmlFor="phone" error={meta.error}>
+                    Phone Number
+                  </Label>
+                  <Input
+                    placeholder="e.g. +1 234 567 890"
+                    error={meta.touched && meta.error ? true : false}
+                    {...field}
+                  />
+                </div>
+              )}
+            </Field>
           </CardContent>
-        </Card>
-      </div>
+        </WizardStep>
 
-      <div className="absolute bottom-0 flex w-full flex-row-reverse items-center justify-between bg-white p-4">
-        <Button variant={currentStep !== 4 ? 'secondary' : 'default'} onClick={handleNext}>
-          {currentStep !== 4 ? 'Next Step' : 'Confirm'}
-        </Button>
+        <WizardStep
+          onSubmit={() => console.log('Step2 onSubmit')}
+          validationSchema={Yup.object({
+            planMethod: Yup.string(),
+          })}
+        >
+          <CardHeader className="px-6 pb-[22px] pt-8">
+            <CardTitle className="text-2xl leading-7 text-[#022959]">Select your plan</CardTitle>
+            <CardDescription className="text-base text-[#9699AA]">
+              You have the option of monthly or yearly billing.
+            </CardDescription>
+          </CardHeader>
 
-        {currentStep === 1 ? null : (
-          <Button variant="link" size="none" onClick={handleBack}>
-            Go Back
-          </Button>
-        )}
-      </div>
+          <CardContent className="grid gap-y-6">
+            <Field type="checkbox" name="planMethod">
+              {({field, form}: FieldProps) => (
+                <div className="flex items-start justify-center gap-x-6 bg-[#F8F9FF] py-[14px]">
+                  <Label
+                    className={cn(
+                      'text-sm font-medium leading-4',
+                      field.value === 'monthly' ? 'text-[#022959]' : 'text-[#9699AA]'
+                    )}
+                  >
+                    Monthly
+                  </Label>
+                  <Switch
+                    name={field.name}
+                    onCheckedChange={value =>
+                      form.setFieldValue(field.name, value ? 'yearly' : 'monthly')
+                    }
+                    checked={field.value === 'monthly' ? false : true}
+                  />
+                  <Label
+                    className={cn(
+                      'text-sm font-medium leading-4',
+                      field.value === 'yearly' ? 'text-[#022959]' : 'text-[#9699AA]'
+                    )}
+                  >
+                    Yearly
+                  </Label>
+                </div>
+              )}
+            </Field>
+          </CardContent>
+        </WizardStep>
+      </Wizard>
     </main>
   );
 }
