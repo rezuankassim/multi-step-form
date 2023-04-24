@@ -67,13 +67,13 @@ const Wizard = ({children, initialValues, onSubmit}: WizardProps) => {
             </div>
           </div>
 
-          <div className="px-4">
+          <div className="px-4 pb-24">
             <Card className="-mt-[73px] rounded-[10px] drop-shadow-[0px_25px_40px_-20px_rgba(0,0,0,0.0951141)]">
               {step}
             </Card>
           </div>
 
-          <div className="absolute bottom-0 flex w-full flex-row-reverse items-center justify-between bg-white p-4">
+          <div className="fixed bottom-0 flex w-full flex-row-reverse items-center justify-between bg-white p-4">
             <Button type="submit" variant={!isLastStep ? 'secondary' : 'default'}>
               {!isLastStep ? 'Next Step' : 'Confirm'}
             </Button>
