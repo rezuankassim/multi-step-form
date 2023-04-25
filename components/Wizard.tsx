@@ -1,4 +1,4 @@
-import {Form, Formik} from 'formik';
+import {Form, Formik, FormikProps, isFunction} from 'formik';
 import React, {ReactFragment, useState} from 'react';
 import {WizardStepProps} from './WizardStep';
 import {Step} from './ui/step';
@@ -69,7 +69,9 @@ const Wizard = ({children, initialValues, onSubmit}: WizardProps) => {
 
           <div className="px-4 pb-24">
             <Card className="-mt-[73px] rounded-[10px] drop-shadow-[0px_25px_40px_-20px_rgba(0,0,0,0.0951141)]">
-              {step}
+              {React.isValidElement<WizardStepProps>(step)
+                ? React.cloneElement<WizardStepProps>(step, {formik: formik})
+                : step}
             </Card>
           </div>
 

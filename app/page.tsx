@@ -12,30 +12,93 @@ import {cn} from '@/lib/utils';
 import {RadioGroup} from '@/components/ui/radio-group';
 import {RadioGroupItem} from '@radix-ui/react-radio-group';
 import Image from 'next/image';
+import {Checkbox} from '@/components/ui/checkbox';
+import {Separator} from '@/components/ui/separator';
+import currency from 'currency.js';
+
+type Plan = {
+  title: string;
+  value: string;
+  icon: string;
+  price: string;
+  priceValue: number;
+  yearPrice: string;
+  yearPriceValue: number;
+};
+
+type AddOn = {
+  id: string;
+  value: string;
+  title: string;
+  subtitle: string;
+  price: string;
+  priceValue: number;
+  yearPrice: string;
+  yearPriceValue: number;
+};
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const plans: {title: string; value: string; icon: string; price: string; yearPrice: string}[] = [
+const plans: Plan[] = [
   {
     title: 'Arcade',
     value: 'arcade',
     icon: '/icon-arcade.svg',
     price: '$9/mo',
+    priceValue: 9,
     yearPrice: '$90/yr',
+    yearPriceValue: 90,
   },
   {
     title: 'Advanced',
     value: 'advanced',
     icon: '/icon-advanced.svg',
     price: '$12/mo',
+    priceValue: 12,
     yearPrice: '$120/yr',
+    yearPriceValue: 120,
   },
   {
     title: 'Pro',
     value: 'pro',
     icon: '/icon-pro.svg',
     price: '$15/mo',
+    priceValue: 15,
     yearPrice: '$150/yr',
+    yearPriceValue: 150,
+  },
+];
+
+const addons: AddOn[] = [
+  {
+    id: 'addons-online-service',
+    value: 'online-service',
+    title: 'Online service',
+    subtitle: 'Access to multiplayer games',
+    price: '+$1/mo',
+    priceValue: 1,
+    yearPrice: '+$10/yr',
+    yearPriceValue: 10,
+  },
+  {
+    id: 'addons-larger-storage',
+    value: 'larger-storage',
+    title: 'Larger storage',
+    subtitle: 'Extra 1TB of cloud save',
+    price: '+$2/mo',
+    priceValue: 2,
+    yearPrice: '+$20/yr',
+    yearPriceValue: 20,
+  },
+  {
+    id: 'addons-customizable-profile',
+    value: 'customizable-profile',
+    title: 'Customizable Profile',
+    subtitle: 'Custom theme on your profile',
+    price: '+$2/mo',
+    priceValue: 2,
+    yearPrice: '+$20/yr',
+    yearPriceValue: 20,
   },
 ];
 
@@ -49,6 +112,7 @@ export default function Home() {
           phone: '0182664733',
           plan: 'arcade',
           planMethod: 'monthly',
+          addons: [],
         }}
         onSubmit={async (values: any) =>
           sleep(300).then(() => console.log('Wizard submit', values))
@@ -143,7 +207,7 @@ export default function Home() {
                 <RadioGroup
                   name={field.name}
                   onValueChange={value => form.setFieldValue(field.name, value)}
-                  defaultValue="arcade"
+                  defaultValue={field.value}
                   className="grid grid-cols-1 gap-y-3"
                 >
                   {plans.map(plan => (
@@ -173,7 +237,7 @@ export default function Home() {
               )}
             </Field>
 
-            <Field type="checkbox" name="planMethod">
+            <Field name="planMethod">
               {({field, form}: FieldProps) => (
                 <div className="flex items-start justify-center gap-x-6 bg-[#F8F9FF] py-[14px]">
                   <Label
@@ -203,6 +267,150 @@ export default function Home() {
               )}
             </Field>
           </CardContent>
+        </WizardStep>
+
+        <WizardStep
+          onSubmit={() => console.log('Step2 onSubmit')}
+          validationSchema={Yup.object({
+            addons: Yup.array(Yup.string()),
+          })}
+        >
+          <CardHeader className="px-6 pb-[22px] pt-8">
+            <CardTitle className="text-2xl leading-7 text-[#022959]">Pick add-ons</CardTitle>
+            <CardDescription className="text-base text-[#9699AA]">
+              Add-ons help enhance your gaming experience.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="grid gap-y-3 pb-8">
+            <Field name="addons">
+              {({field, form}: FieldProps) => (
+                <>
+                  {addons.map(addon => (
+                    <label
+                      key={addon.id}
+                      htmlFor={addon.id}
+                      className={cn(
+                        'flex items-center justify-between rounded-lg border px-4 pb-3 pt-[11px]',
+                        field.value.includes(addon.value)
+                          ? 'border-[#483EFF] bg-[#F8F9FF]'
+                          : 'border-[#D6D9E6]'
+                      )}
+                    >
+                      <div className="flex items-center gap-x-4">
+                        <Checkbox
+                          id={addon.id}
+                          checked={field.value.includes(addon.value)}
+                          onCheckedChange={value => {
+                            if (value) {
+                              form.setFieldValue(field.name, [...field.value, addon.value]);
+                            } else {
+                              form.setFieldValue(field.name, [
+                                ...field.value.filter((val: string) => val !== addon.value),
+                              ]);
+                            }
+                          }}
+                        />
+
+                        <div className="flex flex-col gap-y-[3px]">
+                          <span className="text-sm font-medium leading-4 text-[#022959]">
+                            {addon.title}
+                          </span>
+
+                          <span className="text-xs leading-5 text-[#9699AA]">{addon.subtitle}</span>
+                        </div>
+                      </div>
+
+                      <span className="text-xs leading-5 text-[#483EFF]">
+                        {form.values.planMethod === 'monthly' ? addon.price : addon.yearPrice}
+                      </span>
+                    </label>
+                  ))}
+                </>
+              )}
+            </Field>
+          </CardContent>
+        </WizardStep>
+
+        <WizardStep>
+          {formik => (
+            <>
+              <CardHeader className="px-6 pb-[22px] pt-8">
+                <CardTitle className="text-2xl leading-7 text-[#022959]">Finishing up</CardTitle>
+                <CardDescription className="text-base text-[#9699AA]">
+                  Double-check everything looks OK before confirming.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="pb-8">
+                <div className="flex flex-col gap-y-3 rounded-lg bg-[#F8F9FF] p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-y-[3px]">
+                      <span className="text-sm font-medium leading-4 text-[#022959]">
+                        {plans.find(plan => plan.value === formik.values.plan)!.title} (
+                        {formik.values.planMethod === 'monthly' ? 'Monthly' : 'Yearly'})
+                      </span>
+
+                      <span className="text-sm text-[#9699AA] underline">Change</span>
+                    </div>
+
+                    <span className="text-right text-sm font-bold text-[#022959]">
+                      {formik.values.planMethod === 'monthly'
+                        ? plans.find(plan => plan.value === formik.values.plan)!.price
+                        : plans.find(plan => plan.value === formik.values.plan)!.yearPrice}
+                    </span>
+                  </div>
+
+                  {formik.values.addons.length > 0 ? (
+                    <>
+                      <Separator />
+
+                      {formik.values.addons.map((addon: string) => (
+                        <div key={addon} className="flex items-center justify-between">
+                          <span className="text-sm text-[#9699AA]">
+                            {addons.find(add => add.value === addon)!.title}
+                          </span>
+                          <span className="text-right text-sm text-[#022959]">
+                            {formik.values.planMethod === 'monthly'
+                              ? addons.find(add => add.value === addon)!.price
+                              : addons.find(add => add.value === addon)!.yearPrice}
+                          </span>
+                        </div>
+                      ))}
+                    </>
+                  ) : null}
+                </div>
+
+                <div className="mt-6 flex flex-col rounded-lg px-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#9699AA]">
+                      Total (per {formik.values.planMethod === 'monthly' ? 'month' : 'year'})
+                    </span>
+                    <span className="text-right font-bold leading-5 text-[#483EFF]">
+                      {currency(
+                        formik.values.planMethod === 'monthly'
+                          ? plans.find(plan => plan.value === formik.values.plan)!.priceValue
+                          : plans.find(plan => plan.value === formik.values.plan)!.yearPriceValue
+                      )
+                        .add(
+                          currency(
+                            formik.values.addons.reduce(
+                              (acc: number, addon: string) =>
+                                formik.values.planMethod === 'monthly'
+                                  ? acc + addons.find(add => add.value === addon)!.priceValue
+                                  : acc + addons.find(add => add.value === addon)!.yearPriceValue,
+                              0
+                            )
+                          )
+                        )
+                        .format({precision: 0})}
+                      /{formik.values.planMethod === 'monthly' ? 'mo' : 'yr'}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </>
+          )}
         </WizardStep>
       </Wizard>
     </main>
