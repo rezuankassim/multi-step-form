@@ -216,43 +216,47 @@ export default function Home() {
             planMethod: Yup.string().required(),
           })}
         >
-          <CardHeader className="px-6 pb-[22px] pt-8">
-            <CardTitle className="text-2xl leading-7 text-[#022959]">Select your plan</CardTitle>
-            <CardDescription className="text-base text-[#9699AA]">
+          <CardHeader className="px-6 pb-[22px] pt-8 md:px-0 md:pb-10 md:pt-0">
+            <CardTitle className="text-2xl leading-7 text-[#022959] md:text-[32px] md:leading-[37px]">
+              Select your plan
+            </CardTitle>
+            <CardDescription className="text-base text-[#9699AA] md:leading-[25px]">
               You have the option of monthly or yearly billing.
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="grid gap-y-6">
+          <CardContent className="grid gap-y-6 md:p-0">
             <Field name="plan">
               {({field, form}: FieldProps) => (
                 <RadioGroup
                   name={field.name}
                   onValueChange={value => form.setFieldValue(field.name, value)}
                   defaultValue={field.value}
-                  className="grid grid-cols-1 gap-y-3"
+                  className="grid grid-cols-1 gap-y-3 md:grid-cols-3 md:gap-x-[18px]"
                 >
                   {plans.map(plan => (
                     <RadioGroupItem
                       key={plan.value}
                       value={plan.value}
-                      className="flex items-start gap-x-[14px] rounded-lg border border-[#D6D9E6] px-4 pb-[18px] pt-[14px] data-[state=checked]:border-[#483EFF] data-[state=checked]:bg-[#F8F9FF]"
+                      className="flex items-start gap-x-[14px] rounded-lg border border-[#D6D9E6] px-4 pb-[18px] pt-[14px] data-[state=checked]:border-[#483EFF] data-[state=checked]:bg-[#F8F9FF] md:flex-col md:gap-y-[39px] md:pb-4 md:pt-5"
                     >
                       <Image src={plan.icon} alt="Plan Icon" width={40} height={40} />
 
-                      <div className="flex flex-col items-start gap-y-[7px]">
+                      <div className="flex flex-col items-start">
                         <span className="font-bold leading-[18px] text-[#022959]">
                           {plan.title}
                         </span>
 
-                        <span className="text-sm text-[#9699AA]">
+                        <span className="mt-[7px] text-sm text-[#9699AA]">
                           {monthlyOrYearly(form.values.planMethod, plan.price, plan.yearPrice)}
                         </span>
 
                         {monthlyOrYearly(
                           form.values.planMethod,
                           null,
-                          <span className="text-xs leading-4 text-[#022959]">2 months free</span>
+                          <span className="mt-[6px] text-xs leading-4 text-[#022959]">
+                            2 months free
+                          </span>
                         )}
                       </div>
                     </RadioGroupItem>
@@ -263,7 +267,7 @@ export default function Home() {
 
             <Field name="planMethod">
               {({field, form}: FieldProps) => (
-                <div className="flex items-start justify-center gap-x-6 bg-[#F8F9FF] py-[14px]">
+                <div className="flex items-start justify-center gap-x-6 rounded-lg bg-[#F8F9FF] py-[14px]">
                   <Label
                     className={cn(
                       'text-sm font-medium leading-4',
@@ -298,14 +302,16 @@ export default function Home() {
             addons: Yup.array(Yup.string()),
           })}
         >
-          <CardHeader className="px-6 pb-[22px] pt-8">
-            <CardTitle className="text-2xl leading-7 text-[#022959]">Pick add-ons</CardTitle>
-            <CardDescription className="text-base text-[#9699AA]">
+          <CardHeader className="px-6 pb-[22px] pt-8 md:px-0 md:pb-10 md:pt-0">
+            <CardTitle className="text-2xl leading-7 text-[#022959] md:text-[32px] md:leading-[37px]">
+              Pick add-ons
+            </CardTitle>
+            <CardDescription className="text-base text-[#9699AA] md:leading-[25px]">
               Add-ons help enhance your gaming experience.
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="grid gap-y-3 pb-8">
+          <CardContent className="grid gap-y-3 pb-8 md:p-0">
             <Field name="addons">
               {({field, form}: FieldProps) => (
                 <>
@@ -314,13 +320,13 @@ export default function Home() {
                       key={addon.id}
                       htmlFor={addon.id}
                       className={cn(
-                        'flex items-center justify-between rounded-lg border px-4 pb-3 pt-[11px]',
+                        'flex items-center justify-between rounded-lg border px-4 pb-3 pt-[11px] md:px-6 md:pb-5 md:pt-4',
                         field.value.includes(addon.value)
                           ? 'border-[#483EFF] bg-[#F8F9FF]'
                           : 'border-[#D6D9E6]'
                       )}
                     >
-                      <div className="flex items-center gap-x-4">
+                      <div className="flex items-center gap-x-4 md:gap-x-6">
                         <Checkbox
                           id={addon.id}
                           checked={field.value.includes(addon.value)}
@@ -335,16 +341,18 @@ export default function Home() {
                           }}
                         />
 
-                        <div className="flex flex-col gap-y-[3px]">
-                          <span className="text-sm font-medium leading-4 text-[#022959]">
+                        <div className="flex flex-col gap-y-[3px] md:gap-y-[7px]">
+                          <span className="text-sm font-medium leading-4 text-[#022959] md:text-base md:leading-[18px]">
                             {addon.title}
                           </span>
 
-                          <span className="text-xs leading-5 text-[#9699AA]">{addon.subtitle}</span>
+                          <span className="text-xs leading-5 text-[#9699AA] md:text-sm">
+                            {addon.subtitle}
+                          </span>
                         </div>
                       </div>
 
-                      <span className="text-xs leading-5 text-[#483EFF]">
+                      <span className="text-xs leading-5 text-[#483EFF] md:text-sm">
                         {monthlyOrYearly(form.values.planMethod, addon.price, addon.yearPrice)}
                       </span>
                     </label>
@@ -360,27 +368,27 @@ export default function Home() {
             <>
               {!finished ? (
                 <>
-                  <CardHeader className="px-6 pb-[22px] pt-8">
-                    <CardTitle className="text-2xl leading-7 text-[#022959]">
+                  <CardHeader className="px-6 pb-[22px] pt-8 md:px-0 md:pb-10 md:pt-0">
+                    <CardTitle className="text-2xl leading-7 text-[#022959] md:text-[32px] md:leading-[37px]">
                       Finishing up
                     </CardTitle>
-                    <CardDescription className="text-base text-[#9699AA]">
+                    <CardDescription className="text-base text-[#9699AA] md:leading-[25px]">
                       Double-check everything looks OK before confirming.
                     </CardDescription>
                   </CardHeader>
 
-                  <CardContent className="pb-8">
-                    <div className="flex flex-col gap-y-3 rounded-lg bg-[#F8F9FF] p-4">
+                  <CardContent className="pb-8 md:p-0">
+                    <div className="flex flex-col gap-y-3 rounded-lg bg-[#F8F9FF] p-4 md:px-6 md:pb-6 md:pt-4">
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col gap-y-[3px]">
-                          <span className="text-sm font-medium leading-4 text-[#022959]">
+                          <span className="text-sm font-medium leading-4 text-[#022959] md:text-base md:leading-[18px]">
                             {plans.find(plan => plan.value === formik.values.plan)!.title} (
                             {monthlyOrYearly(formik.values.planMethod, 'Monthly', 'Yearly')})
                           </span>
 
                           <a
                             href="#"
-                            className="text-sm text-[#9699AA] underline"
+                            className="text-sm text-[#9699AA] underline hover:text-[#483EFF]"
                             onClick={e => {
                               e.preventDefault();
                               changeStep(1, formik.values);
@@ -390,7 +398,7 @@ export default function Home() {
                           </a>
                         </div>
 
-                        <span className="text-right text-sm font-bold text-[#022959]">
+                        <span className="md:leading5 text-right text-sm font-bold text-[#022959] md:text-base">
                           {monthlyOrYearly(
                             formik.values.planMethod,
                             plans.find(plan => plan.value === formik.values.plan)!.price,
@@ -421,12 +429,12 @@ export default function Home() {
                       ) : null}
                     </div>
 
-                    <div className="mt-6 flex flex-col rounded-lg px-4">
+                    <div className="mt-6 flex flex-col rounded-lg px-4 md:px-6">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-[#9699AA]">
                           Total (per {formik.values.planMethod === 'monthly' ? 'month' : 'year'})
                         </span>
-                        <span className="text-right font-bold leading-5 text-[#483EFF]">
+                        <span className="text-right font-bold leading-5 text-[#483EFF] md:text-xl md:leading-5">
                           {currency(
                             monthlyOrYearly(
                               formik.values.planMethod,
@@ -457,11 +465,15 @@ export default function Home() {
                   </CardContent>
                 </>
               ) : (
-                <CardContent className="flex flex-col items-center justify-center gap-y-6 px-6 py-[79px]">
-                  <Image src="/icon-thank-you.svg" alt="Thank you icon" width={56} height={56} />
+                <CardContent className="flex flex-col items-center justify-center gap-y-6 px-6 py-[79px] md:pt-[125px]">
+                  <div className="relative h-14 w-14 md:h-20 md:w-20">
+                    <Image src="/icon-thank-you.svg" alt="Thank you icon" fill />
+                  </div>
 
                   <div className="flex flex-col items-center gap-y-[9px]">
-                    <span className="text-2xl font-bold leading-7 text-[#022959]">Thank you!</span>
+                    <span className="text-2xl font-bold leading-7 text-[#022959] md:text-[32px] md:leading-[37px]">
+                      Thank you!
+                    </span>
 
                     <p className="text-center leading-[25px] text-[#9699AA]">
                       Thanks for confirming your subscription! We hope you have fun using our

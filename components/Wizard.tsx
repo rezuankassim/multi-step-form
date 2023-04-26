@@ -115,7 +115,7 @@ const Wizard = ({
           </Form>
 
           <Form className="hidden md:block">
-            <div className="flex gap-x-[100px] rounded-[15px] bg-white p-4 drop-shadow-[0px_25px_40px_-20px_rgba(0,0,0,0.0951141)]">
+            <div className="flex w-[940px] gap-x-[100px] rounded-[15px] bg-white p-4 drop-shadow-[0px_25px_40px_-20px_rgba(0,0,0,0.0951141)]">
               <div className="h-[568px] w-[274px] bg-[url('/bg-sidebar-desktop.svg')]">
                 <div className="flex flex-col gap-y-8 px-8 py-10">
                   {[...Array(totalSteps)].map((x, i) => (
@@ -130,7 +130,7 @@ const Wizard = ({
                 </div>
               </div>
 
-              <div className="flex flex-col pr-[84px] pt-10">
+              <div className="flex flex-1 flex-col pr-[84px] pt-10">
                 <div className="flex-1">
                   {React.isValidElement<WizardStepProps>(step)
                     ? React.cloneElement<WizardStepProps>(step, {
@@ -140,22 +140,24 @@ const Wizard = ({
                     : step}
                 </div>
 
-                <div className="mb-4 mt-[92px] flex flex-row-reverse items-center justify-between">
-                  <Button type="submit" variant={!isLastStep ? 'secondary' : 'default'}>
-                    {!isLastStep ? 'Next Step' : 'Confirm'}
-                  </Button>
-
-                  {stepNumber > 0 ? (
-                    <Button
-                      type="button"
-                      variant="link"
-                      size="none"
-                      onClick={() => previous(formik.values)}
-                    >
-                      Go Back
+                {!finished ? (
+                  <div className="mb-4 mt-[92px] flex flex-row-reverse items-center justify-between">
+                    <Button type="submit" variant={!isLastStep ? 'secondary' : 'default'}>
+                      {!isLastStep ? 'Next Step' : 'Confirm'}
                     </Button>
-                  ) : null}
-                </div>
+
+                    {stepNumber > 0 ? (
+                      <Button
+                        type="button"
+                        variant="link"
+                        size="none"
+                        onClick={() => previous(formik.values)}
+                      >
+                        Go Back
+                      </Button>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
           </Form>
