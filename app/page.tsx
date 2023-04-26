@@ -8,13 +8,15 @@ import * as Yup from 'yup';
 import Wizard from '@/components/Wizard';
 import WizardStep from '@/components/WizardStep';
 import {Switch} from '@/components/ui/switch';
-import {cn} from '@/lib/utils';
+import {cn, monthlyOrYearly} from '@/lib/utils';
 import {RadioGroup} from '@/components/ui/radio-group';
 import {RadioGroupItem} from '@radix-ui/react-radio-group';
 import Image from 'next/image';
 import {Checkbox} from '@/components/ui/checkbox';
 import {Separator} from '@/components/ui/separator';
 import currency from 'currency.js';
+import {useState} from 'react';
+import {Button} from '@/components/ui/button';
 
 type Plan = {
   title: string;
@@ -103,9 +105,12 @@ const addons: AddOn[] = [
 ];
 
 export default function Home() {
+  const [finished, setFinished] = useState(false);
+
   return (
     <main className="relative min-h-screen bg-[#EFF5FF]">
       <Wizard
+        finished={finished}
         initialValues={{
           name: 'Rezuan Kassim',
           email: 'rezuankassim@hotmail.com',
@@ -114,12 +119,9 @@ export default function Home() {
           planMethod: 'monthly',
           addons: [],
         }}
-        onSubmit={async (values: any) =>
-          sleep(300).then(() => console.log('Wizard submit', values))
-        }
+        onSubmit={async (values: any) => sleep(300).then(() => setFinished(true))}
       >
         <WizardStep
-          onSubmit={() => console.log('Step1 onSubmit')}
           validationSchema={Yup.object({
             name: Yup.string()
               .min(3, 'This field needs 3 char. min.')
@@ -188,7 +190,6 @@ export default function Home() {
         </WizardStep>
 
         <WizardStep
-          onSubmit={() => console.log('Step2 onSubmit')}
           validationSchema={Yup.object({
             plan: Yup.string().required(),
             planMethod: Yup.string().required(),
@@ -224,12 +225,14 @@ export default function Home() {
                         </span>
 
                         <span className="text-sm text-[#9699AA]">
-                          {form.values.planMethod === 'monthly' ? plan.price : plan.yearPrice}
+                          {monthlyOrYearly(form.values.planMethod, plan.price, plan.yearPrice)}
                         </span>
 
-                        {form.values.planMethod === 'yearly' ? (
+                        {monthlyOrYearly(
+                          form.values.planMethod,
+                          null,
                           <span className="text-xs leading-4 text-[#022959]">2 months free</span>
-                        ) : null}
+                        )}
                       </div>
                     </RadioGroupItem>
                   ))}
@@ -243,7 +246,7 @@ export default function Home() {
                   <Label
                     className={cn(
                       'text-sm font-medium leading-4',
-                      field.value === 'monthly' ? 'text-[#022959]' : 'text-[#9699AA]'
+                      monthlyOrYearly(form.values.planMethod, 'text-[#022959]', 'text-[#9699AA]')
                     )}
                   >
                     Monthly
@@ -253,7 +256,7 @@ export default function Home() {
                     onCheckedChange={value =>
                       form.setFieldValue(field.name, value ? 'yearly' : 'monthly')
                     }
-                    checked={field.value === 'monthly' ? false : true}
+                    checked={monthlyOrYearly(field.value, false, true)}
                   />
                   <Label
                     className={cn(
@@ -270,7 +273,6 @@ export default function Home() {
         </WizardStep>
 
         <WizardStep
-          onSubmit={() => console.log('Step2 onSubmit')}
           validationSchema={Yup.object({
             addons: Yup.array(Yup.string()),
           })}
@@ -322,7 +324,7 @@ export default function Home() {
                       </div>
 
                       <span className="text-xs leading-5 text-[#483EFF]">
-                        {form.values.planMethod === 'monthly' ? addon.price : addon.yearPrice}
+                        {monthlyOrYearly(form.values.planMethod, addon.price, addon.yearPrice)}
                       </span>
                     </label>
                   ))}
@@ -333,82 +335,121 @@ export default function Home() {
         </WizardStep>
 
         <WizardStep>
-          {formik => (
+          {({formik, changeStep}) => (
             <>
-              <CardHeader className="px-6 pb-[22px] pt-8">
-                <CardTitle className="text-2xl leading-7 text-[#022959]">Finishing up</CardTitle>
-                <CardDescription className="text-base text-[#9699AA]">
-                  Double-check everything looks OK before confirming.
-                </CardDescription>
-              </CardHeader>
+              {!finished ? (
+                <>
+                  <CardHeader className="px-6 pb-[22px] pt-8">
+                    <CardTitle className="text-2xl leading-7 text-[#022959]">
+                      Finishing up
+                    </CardTitle>
+                    <CardDescription className="text-base text-[#9699AA]">
+                      Double-check everything looks OK before confirming.
+                    </CardDescription>
+                  </CardHeader>
 
-              <CardContent className="pb-8">
-                <div className="flex flex-col gap-y-3 rounded-lg bg-[#F8F9FF] p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-y-[3px]">
-                      <span className="text-sm font-medium leading-4 text-[#022959]">
-                        {plans.find(plan => plan.value === formik.values.plan)!.title} (
-                        {formik.values.planMethod === 'monthly' ? 'Monthly' : 'Yearly'})
-                      </span>
+                  <CardContent className="pb-8">
+                    <div className="flex flex-col gap-y-3 rounded-lg bg-[#F8F9FF] p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-y-[3px]">
+                          <span className="text-sm font-medium leading-4 text-[#022959]">
+                            {plans.find(plan => plan.value === formik.values.plan)!.title} (
+                            {monthlyOrYearly(formik.values.planMethod, 'Monthly', 'Yearly')})
+                          </span>
 
-                      <span className="text-sm text-[#9699AA] underline">Change</span>
+                          <a
+                            href="#"
+                            className="text-sm text-[#9699AA] underline"
+                            onClick={e => {
+                              e.preventDefault();
+                              changeStep(1, formik.values);
+                            }}
+                          >
+                            Change
+                          </a>
+                        </div>
+
+                        <span className="text-right text-sm font-bold text-[#022959]">
+                          {monthlyOrYearly(
+                            formik.values.planMethod,
+                            plans.find(plan => plan.value === formik.values.plan)!.price,
+                            plans.find(plan => plan.value === formik.values.plan)!.yearPrice
+                          )}
+                        </span>
+                      </div>
+
+                      {formik.values.addons.length > 0 ? (
+                        <>
+                          <Separator />
+
+                          {formik.values.addons.map((addon: string) => (
+                            <div key={addon} className="flex items-center justify-between">
+                              <span className="text-sm text-[#9699AA]">
+                                {addons.find(add => add.value === addon)!.title}
+                              </span>
+                              <span className="text-right text-sm text-[#022959]">
+                                {monthlyOrYearly(
+                                  formik.values.planMethod,
+                                  addons.find(add => add.value === addon)!.price,
+                                  addons.find(add => add.value === addon)!.yearPrice
+                                )}
+                              </span>
+                            </div>
+                          ))}
+                        </>
+                      ) : null}
                     </div>
 
-                    <span className="text-right text-sm font-bold text-[#022959]">
-                      {formik.values.planMethod === 'monthly'
-                        ? plans.find(plan => plan.value === formik.values.plan)!.price
-                        : plans.find(plan => plan.value === formik.values.plan)!.yearPrice}
-                    </span>
-                  </div>
-
-                  {formik.values.addons.length > 0 ? (
-                    <>
-                      <Separator />
-
-                      {formik.values.addons.map((addon: string) => (
-                        <div key={addon} className="flex items-center justify-between">
-                          <span className="text-sm text-[#9699AA]">
-                            {addons.find(add => add.value === addon)!.title}
-                          </span>
-                          <span className="text-right text-sm text-[#022959]">
-                            {formik.values.planMethod === 'monthly'
-                              ? addons.find(add => add.value === addon)!.price
-                              : addons.find(add => add.value === addon)!.yearPrice}
-                          </span>
-                        </div>
-                      ))}
-                    </>
-                  ) : null}
-                </div>
-
-                <div className="mt-6 flex flex-col rounded-lg px-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[#9699AA]">
-                      Total (per {formik.values.planMethod === 'monthly' ? 'month' : 'year'})
-                    </span>
-                    <span className="text-right font-bold leading-5 text-[#483EFF]">
-                      {currency(
-                        formik.values.planMethod === 'monthly'
-                          ? plans.find(plan => plan.value === formik.values.plan)!.priceValue
-                          : plans.find(plan => plan.value === formik.values.plan)!.yearPriceValue
-                      )
-                        .add(
-                          currency(
-                            formik.values.addons.reduce(
-                              (acc: number, addon: string) =>
-                                formik.values.planMethod === 'monthly'
-                                  ? acc + addons.find(add => add.value === addon)!.priceValue
-                                  : acc + addons.find(add => add.value === addon)!.yearPriceValue,
-                              0
-                            )
+                    <div className="mt-6 flex flex-col rounded-lg px-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[#9699AA]">
+                          Total (per {formik.values.planMethod === 'monthly' ? 'month' : 'year'})
+                        </span>
+                        <span className="text-right font-bold leading-5 text-[#483EFF]">
+                          {currency(
+                            monthlyOrYearly(
+                              formik.values.planMethod,
+                              plans.find(plan => plan.value === formik.values.plan)!.priceValue,
+                              plans.find(plan => plan.value === formik.values.plan)!.yearPriceValue
+                            ),
+                            {precision: 0}
                           )
-                        )
-                        .format({precision: 0})}
-                      /{formik.values.planMethod === 'monthly' ? 'mo' : 'yr'}
-                    </span>
+                            .add(
+                              currency(
+                                formik.values.addons.reduce(
+                                  (acc: number, addon: string) =>
+                                    monthlyOrYearly(
+                                      formik.values.planMethod,
+                                      acc + addons.find(add => add.value === addon)!.priceValue,
+                                      acc + addons.find(add => add.value === addon)!.yearPriceValue
+                                    ),
+                                  0
+                                ),
+                                {precision: 0}
+                              )
+                            )
+                            .format({precision: 0})}
+                          /{monthlyOrYearly(formik.values.planMethod, 'mo', 'yr')}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </>
+              ) : (
+                <CardContent className="flex flex-col items-center justify-center gap-y-6 px-6 py-[79px]">
+                  <Image src="/icon-thank-you.svg" alt="Thank you icon" width={56} height={56} />
+
+                  <div className="flex flex-col items-center gap-y-[9px]">
+                    <span className="text-2xl font-bold leading-7 text-[#022959]">Thank you!</span>
+
+                    <p className="text-center leading-[25px] text-[#9699AA]">
+                      Thanks for confirming your subscription! We hope you have fun using our
+                      platform. If you ever need support, please feel free to email us at
+                      support@loremgaming.com.
+                    </p>
                   </div>
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </>
           )}
         </WizardStep>

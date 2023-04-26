@@ -1,4 +1,4 @@
-import {Form, Formik, FormikProps, isFunction} from 'formik';
+import {Form, Formik, FormikProps, FormikValues, isFunction} from 'formik';
 import React, {ReactFragment, useState} from 'react';
 import {WizardStepProps} from './WizardStep';
 import {Step} from './ui/step';
@@ -6,12 +6,13 @@ import {Card} from './ui/card';
 import {Button} from './ui/button';
 
 type WizardProps = {
+  finished?: boolean;
   children: React.ReactNode;
   initialValues: Record<string, any>;
   onSubmit: (values: Record<string, any>, bag: any) => void;
 };
 
-const Wizard = ({children, initialValues, onSubmit}: WizardProps) => {
+const Wizard = ({finished = false, children, initialValues, onSubmit}: WizardProps) => {
   const [stepNumber, setStepNumber] = useState(0);
   const steps = React.Children.toArray(children);
   const [snapshot, setSnapshot] = useState(initialValues);
@@ -45,6 +46,13 @@ const Wizard = ({children, initialValues, onSubmit}: WizardProps) => {
     }
   };
 
+  const changeStep = (step: number, values: FormikValues) => {
+    if (step < totalSteps && step >= 0) {
+      setSnapshot(values);
+      setStepNumber(step);
+    }
+  };
+
   return (
     <Formik
       initialValues={snapshot}
@@ -70,27 +78,32 @@ const Wizard = ({children, initialValues, onSubmit}: WizardProps) => {
           <div className="px-4 pb-24">
             <Card className="-mt-[73px] rounded-[10px] drop-shadow-[0px_25px_40px_-20px_rgba(0,0,0,0.0951141)]">
               {React.isValidElement<WizardStepProps>(step)
-                ? React.cloneElement<WizardStepProps>(step, {formik: formik})
+                ? React.cloneElement<WizardStepProps>(step, {
+                    formik: formik,
+                    changeStep: changeStep,
+                  })
                 : step}
             </Card>
           </div>
 
-          <div className="fixed bottom-0 flex w-full flex-row-reverse items-center justify-between bg-white p-4">
-            <Button type="submit" variant={!isLastStep ? 'secondary' : 'default'}>
-              {!isLastStep ? 'Next Step' : 'Confirm'}
-            </Button>
-
-            {stepNumber > 0 ? (
-              <Button
-                type="button"
-                variant="link"
-                size="none"
-                onClick={() => previous(formik.values)}
-              >
-                Go Back
+          {!finished ? (
+            <div className="fixed bottom-0 flex w-full flex-row-reverse items-center justify-between bg-white p-4">
+              <Button type="submit" variant={!isLastStep ? 'secondary' : 'default'}>
+                {!isLastStep ? 'Next Step' : 'Confirm'}
               </Button>
-            ) : null}
-          </div>
+
+              {stepNumber > 0 ? (
+                <Button
+                  type="button"
+                  variant="link"
+                  size="none"
+                  onClick={() => previous(formik.values)}
+                >
+                  Go Back
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
         </Form>
       )}
     </Formik>

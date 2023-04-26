@@ -5,4 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const isFunction = (obj: any): obj is Function => typeof obj === 'function';
+export const monthlyOrYearly = (val: 'monthly' | 'yearly', monthly: any, yearly: any) => {
+  if (val === 'monthly') return monthly;
+
+  if (val === 'yearly') return yearly;
+};
