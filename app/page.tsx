@@ -16,7 +16,10 @@ import {Checkbox} from '@/components/ui/checkbox';
 import {Separator} from '@/components/ui/separator';
 import currency from 'currency.js';
 import {useState} from 'react';
-import {Button} from '@/components/ui/button';
+
+type Step = {
+  label: string;
+};
 
 type Plan = {
   title: string;
@@ -40,6 +43,21 @@ type AddOn = {
 };
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const steps: Step[] = [
+  {
+    label: 'Your Info',
+  },
+  {
+    label: 'Select Plan',
+  },
+  {
+    label: 'Add-Ons',
+  },
+  {
+    label: 'Summary',
+  },
+];
 
 const plans: Plan[] = [
   {
@@ -108,9 +126,10 @@ export default function Home() {
   const [finished, setFinished] = useState(false);
 
   return (
-    <main className="relative min-h-screen bg-[#EFF5FF]">
+    <main className="relative min-h-screen bg-[#EFF5FF] md:grid md:place-items-center">
       <Wizard
         finished={finished}
+        stepLabels={steps}
         initialValues={{
           name: 'Rezuan Kassim',
           email: 'rezuankassim@hotmail.com',
@@ -133,17 +152,19 @@ export default function Home() {
               .required('This field is required'),
           })}
         >
-          <CardHeader className="px-6 pb-[22px] pt-8">
-            <CardTitle className="text-2xl leading-7 text-[#022959]">Personal Info</CardTitle>
-            <CardDescription className="text-base text-[#9699AA]">
+          <CardHeader className="px-6 pb-[22px] pt-8 md:px-0 md:pb-10 md:pt-0">
+            <CardTitle className="text-2xl leading-7 text-[#022959] md:text-[32px] md:leading-[37px]">
+              Personal Info
+            </CardTitle>
+            <CardDescription className="text-base text-[#9699AA] md:leading-[25px]">
               Please provide your name, email address, and phone number.
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="grid gap-y-4">
+          <CardContent className="grid gap-y-4 md:p-0">
             <Field name="name">
               {({field, meta}: FieldProps) => (
-                <div className="flex flex-col gap-y-[3px]">
+                <div className="flex flex-col gap-y-[3px] md:gap-y-2">
                   <Label htmlFor="name" error={meta.error}>
                     Name
                   </Label>

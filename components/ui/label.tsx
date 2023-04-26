@@ -7,7 +7,7 @@ import {VariantProps, cva} from 'class-variance-authority';
 import {cn} from '@/lib/utils';
 
 const labelVariants = cva(
-  'text-xs leading-[14px] text-[#022959] peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+  'text-xs leading-[14px] text-[#022959] md:text-sm md:leading-4 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
 );
 
 export interface LabelProps {
